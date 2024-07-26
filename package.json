@@ -16,10 +16,12 @@
         "prepare": "make"
     },
     "dependencies": {
+        "@greymass/create-account": "^1.0.2",
+        "@metamask/providers": "^17.1.2",
         "tslib": "^2.1.0"
     },
     "peerDependencies": {
-        "@wharfkit/session": "^1.0.0"
+        "@wharfkit/session": "^1.2.7"
     },
     "devDependencies": {
         "@rollup/plugin-alias": "^3.1.4",
@@ -35,7 +37,7 @@
         "@typescript-eslint/eslint-plugin": "^5.20.0",
         "@typescript-eslint/parser": "^5.20.0",
         "@wharfkit/mock-data": "^1.0.2",
-        "@wharfkit/session": "^1.0.0",
+        "@wharfkit/session": "^1.2.7",
         "chai": "^4.3.4",
         "eslint": "^8.13.0",
         "eslint-config-prettier": "^8.1.0",
