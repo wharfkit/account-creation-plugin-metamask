@@ -33,7 +33,7 @@ export class AccountCreationPluginMetamask
 
     readonly metadata: AccountCreationPluginMetadata = AccountCreationPluginMetadata.from({
         name: 'Account Creation Plugin Metamask',
-        description: 'Plugin to create EOS accounts using Metamask public key',
+        description: 'Plugin to create EOS accounts using Metamask public key.',
     })
 
     get id(): string {

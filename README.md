@@ -1,15 +1,12 @@
-# WARNING: This is a work in progress and not ready for use.
+# WARNING: This is a work in progress and not ready for production use.
 
-# @wharfkit/account-creation-plugin-template
+# @wharfkit/account-creation-plugin-metamask
 
-A template to create a `account-creationPlugin` for use within the `@wharfkit/session` library.
+Wharfkit Plugin to create EOS accounts using Metamask public key.
 
 ## Usage
 
--   [Use this as a template.](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template)
--   Write your account-creation plugin's logic.
--   Publish it on Github or npmjs.com
--   Include it in your project and use it.
+[Read the Wharf account creation plugin documentation](https://wharfkit.com/docs/session-kit/plugin-account-creation)
 
 ## Developing
 
