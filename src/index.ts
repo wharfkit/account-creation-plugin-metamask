@@ -3,10 +3,10 @@ import {
     AbstractAccountCreationPlugin,
     AccountCreationPlugin,
     AccountCreationPluginConfig,
-    CreateAccountContext,
-    Checksum256Type,
-    PublicKey,
     Chains,
+    Checksum256Type,
+    CreateAccountContext,
+    PublicKey,
 } from '@wharfkit/session'
 import {AccountCreationPluginMetadata} from '@wharfkit/session'
 import {MetaMaskInpageProvider, RequestArguments} from '@metamask/providers'
@@ -28,6 +28,7 @@ export class AccountCreationPluginMetamask
 
     readonly config: AccountCreationPluginConfig = {
         requiresChainSelect: true,
+        supportedChains: [Chains.EOS, Chains.Jungle4],
     }
 
     readonly metadata: AccountCreationPluginMetadata = AccountCreationPluginMetadata.from({
@@ -44,32 +45,40 @@ export class AccountCreationPluginMetamask
     }
 
     async create(context: CreateAccountContext) {
-        if (context.chain?.id !== Chains.EOS.id) {
-            throw new Error('Only EOS is currently supported by this plugin.')
+        if (!context.chain) {
+            throw new Error('Chain not provided')
+        }
+        const currentChain = this.config.supportedChains?.find(
+            (chain) => chain.name === context.chain?.name
+        )
+        if (!currentChain) {
+            throw new Error(
+                `Chain not supported. This plugin only supports ${this.config.supportedChains
+                    ?.map((chain) => chain.name)
+                    .join(', ')}`
+            )
         }
         const qs = new URLSearchParams()
-        qs.set('supported_chains', String(context.chain))
+        qs.set('supported_chains', String(currentChain))
         if (context.appName) {
             qs.set('scope', String(context.appName))
         }
 
-        const publicKey = await this.retrievePublicKey(context.chain.id)
+        const publicKey = await this.retrievePublicKey(currentChain.id)
 
         qs.set('owner_key', String(publicKey))
         qs.set('active_key', String(publicKey))
         const accountCreator = new AccountCreator({
-            supportedChains: [String(context.chain?.id)],
+            supportedChains: [String(currentChain.id)],
             fullCreationServiceUrl: `${ACCOUNT_CREATION_SERVICE_URL}?${qs.toString()}`,
             scope: context.appName || 'Antelope App',
         })
         const accountCreationResponse = await accountCreator.createAccount()
 
-        console.log({accountCreationResponse})
-
         if ('sa' in accountCreationResponse && 'sp' in accountCreationResponse) {
             return {
                 accountName: accountCreationResponse.sa,
-                chain: Chains.EOS,
+                chain: context.chain,
             }
         } else {
             throw new Error(accountCreationResponse.error)
