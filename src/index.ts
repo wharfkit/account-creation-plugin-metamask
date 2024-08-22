@@ -17,6 +17,11 @@ export type GetSnapsResponse = Record<string, Snap>
 const DEFAULT_SNAP_ORIGIN = 'local:http://localhost:8080'
 const ACCOUNT_CREATION_SERVICE_URL =
     'https://adding-login-through-apple.account-creation-portal.pages.dev/buy'
+const defaultSetupPageUrl = 'https://unicove.com/eos/metamask'
+
+export interface AccountCreationPluginMetaMaskConfig {
+    setupPageUrl?: string
+}
 
 export class AccountCreationPluginMetamask
     extends AbstractAccountCreationPlugin
@@ -25,6 +30,7 @@ export class AccountCreationPluginMetamask
     public installedSnap: Snap | null = null
     public provider: MetaMaskInpageProvider | null = null
     public isFlask = false
+    public setupPageUrl
 
     readonly config: AccountCreationPluginConfig = {
         requiresChainSelect: true,
@@ -35,6 +41,12 @@ export class AccountCreationPluginMetamask
         name: 'Account Creation Plugin Metamask',
         description: 'Plugin to create EOS accounts using Metamask public key.',
     })
+
+    constructor(walletPluginMetaMaskConfig?: AccountCreationPluginMetaMaskConfig) {
+        super()
+
+        this.setupPageUrl = walletPluginMetaMaskConfig?.setupPageUrl || defaultSetupPageUrl
+    }
 
     get id(): string {
         return 'account-creation-plugin-metamask'
@@ -85,7 +97,7 @@ export class AccountCreationPluginMetamask
         }
     }
 
-    async initialize() {
+    async initialize(context?: CreateAccountContext) {
         if (!this.provider) {
             this.provider = await getSnapsProvider()
         }
@@ -93,10 +105,25 @@ export class AccountCreationPluginMetamask
             this.isFlask = await checkIsFlask(this.provider)
             await this.setSnap()
             if (!this.installedSnap) {
-                await this.requestSnap()
-                if (this.installedSnap) {
-                    await this.initialize()
-                }
+                context?.ui?.prompt({
+                    title: 'Antelope Snap Setup Required',
+                    body: `
+                        It looks like the Antelope snap for MetaMask isn't installed yet. 
+    
+                        Click the button below to go to our setup page:
+                    `,
+                    elements: [
+                        {
+                            type: 'button',
+                            label: 'Go to Setup Page',
+                            data: {
+                                onClick: () => {
+                                    window.open(this.setupPageUrl, '_blank')
+                                },
+                            },
+                        },
+                    ],
+                })
             }
         }
     }
