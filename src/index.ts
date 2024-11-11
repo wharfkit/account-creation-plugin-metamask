@@ -14,9 +14,8 @@ import {checkIsFlask, getSnapsProvider, InvokeSnapParams, Snap} from './metamask
 
 export type GetSnapsResponse = Record<string, Snap>
 
-const DEFAULT_SNAP_ORIGIN = 'local:http://localhost:8080'
-const ACCOUNT_CREATION_SERVICE_URL =
-    'https://adding-login-through-apple.account-creation-portal.pages.dev/buy'
+const DEFAULT_SNAP_ORIGIN = 'npm:@greymass/eos-wallet'
+const ACCOUNT_CREATION_SERVICE_URL = 'https://eos.account.unicove.com/buy'
 const defaultSetupPageUrl = 'https://unicove.com/eos/metamask'
 
 export interface AccountCreationPluginMetaMaskConfig {
@@ -108,8 +107,8 @@ export class AccountCreationPluginMetamask
                 context?.ui?.prompt({
                     title: 'Antelope Snap Setup Required',
                     body: `
-                        It looks like the Antelope snap for MetaMask isn't installed yet. 
-    
+                        It looks like the Antelope snap for MetaMask isn't installed yet.
+
                         Click the button below to go to our setup page:
                     `,
                     elements: [
