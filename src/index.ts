@@ -14,11 +14,13 @@ import {checkIsFlask, getSnapsProvider, InvokeSnapParams, Snap} from './metamask
 
 export type GetSnapsResponse = Record<string, Snap>
 
-const DEFAULT_SNAP_ORIGIN = 'npm:@greymass/eos-wallet'
 const ACCOUNT_CREATION_SERVICE_URL = 'https://eos.account.unicove.com/buy'
-const defaultSetupPageUrl = 'https://unicove.com/eos/metamask'
+const DEFAULT_SETUP_PAGE = 'https://unicove.com/eos/metamask'
+const DEFAULT_SNAP_ORIGIN = 'npm:@greymass/eos-wallet'
 
 export interface AccountCreationPluginMetaMaskConfig {
+    accountCreationServiceUrl?: string
+    snapOrigin?: string
     setupPageUrl?: string
 }
 
@@ -29,7 +31,10 @@ export class AccountCreationPluginMetamask
     public installedSnap: Snap | null = null
     public provider: MetaMaskInpageProvider | null = null
     public isFlask = false
-    public setupPageUrl
+
+    public accountCreationServiceUrl: string
+    public snapOrigin: string
+    public setupPageUrl: string
 
     readonly config: AccountCreationPluginConfig = {
         requiresChainSelect: true,
@@ -44,7 +49,10 @@ export class AccountCreationPluginMetamask
     constructor(walletPluginMetaMaskConfig?: AccountCreationPluginMetaMaskConfig) {
         super()
 
-        this.setupPageUrl = walletPluginMetaMaskConfig?.setupPageUrl || defaultSetupPageUrl
+        this.accountCreationServiceUrl =
+            walletPluginMetaMaskConfig?.accountCreationServiceUrl || ACCOUNT_CREATION_SERVICE_URL
+        this.snapOrigin = walletPluginMetaMaskConfig?.snapOrigin || DEFAULT_SNAP_ORIGIN
+        this.setupPageUrl = walletPluginMetaMaskConfig?.setupPageUrl || DEFAULT_SETUP_PAGE
     }
 
     get id(): string {
@@ -81,7 +89,7 @@ export class AccountCreationPluginMetamask
         qs.set('active_key', String(publicKey))
         const accountCreator = new AccountCreator({
             supportedChains: [String(currentChain.id)],
-            fullCreationServiceUrl: `${ACCOUNT_CREATION_SERVICE_URL}?${qs.toString()}`,
+            fullCreationServiceUrl: `${this.accountCreationServiceUrl}?${qs.toString()}`,
             scope: context.appName || 'Antelope App',
         })
         const accountCreationResponse = await accountCreator.createAccount()
@@ -156,11 +164,11 @@ export class AccountCreationPluginMetamask
             method: 'wallet_getSnaps',
             params: {},
         })) as GetSnapsResponse
-        this.installedSnap = snaps[DEFAULT_SNAP_ORIGIN] ?? null
+        this.installedSnap = snaps[this.snapOrigin] ?? null
     }
 
     async requestSnap(id?: string, version?: string) {
-        const snapId = id || DEFAULT_SNAP_ORIGIN
+        const snapId = id || this.snapOrigin
         const snaps = (await this.request({
             method: 'wallet_requestSnaps',
             params: {
@@ -171,7 +179,7 @@ export class AccountCreationPluginMetamask
     }
 
     async invokeSnap({method, params}: InvokeSnapParams, id?: string) {
-        const snapId = id || DEFAULT_SNAP_ORIGIN
+        const snapId = id || this.snapOrigin
         return this.request({
             method: 'wallet_invokeSnap',
             params: {snapId, request: {method, params}},
