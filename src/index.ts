@@ -6,6 +6,7 @@ import {
     Chains,
     Checksum256Type,
     CreateAccountContext,
+    PublicKey,
 } from '@wharfkit/session'
 import {AccountCreationPluginMetadata} from '@wharfkit/session'
 import {MetaMaskInpageProvider, RequestArguments} from '@metamask/providers'
@@ -136,20 +137,23 @@ export class AccountCreationPluginMetamask
 
     async retrievePublicKeys(
         chainId: Checksum256Type
-    ): Promise<{ownerPublicKey: string; activePublicKey: string}> {
+    ): Promise<{ownerPublicKey: PublicKey; activePublicKey: PublicKey}> {
         await this.initialize()
         if (!this.provider) {
             throw new Error('Metamask not found')
         }
-        const ownerPublicKey = (await this.invokeSnap({
+        const ownerPublicKeyString = (await this.invokeSnap({
             method: 'antelope_getOwnerPublicKey',
             params: {chainId: String(chainId)},
         })) as string
-        const activePublicKey = (await this.invokeSnap({
+        const activePublicKeyString = (await this.invokeSnap({
             method: 'antelope_getActivePublicKey',
             params: {chainId: String(chainId)},
         })) as string
-        return {ownerPublicKey, activePublicKey}
+        return {
+            ownerPublicKey: PublicKey.from(ownerPublicKeyString),
+            activePublicKey: PublicKey.from(activePublicKeyString),
+        }
     }
 
     async request({method, params}) {
