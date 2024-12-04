@@ -6,7 +6,6 @@ import {
     Chains,
     Checksum256Type,
     CreateAccountContext,
-    PublicKey,
 } from '@wharfkit/session'
 import {AccountCreationPluginMetadata} from '@wharfkit/session'
 import {MetaMaskInpageProvider, RequestArguments} from '@metamask/providers'
