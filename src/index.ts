@@ -83,10 +83,10 @@ export class AccountCreationPluginMetamask
             qs.set('scope', String(context.appName))
         }
 
-        const publicKey = await this.retrievePublicKey(currentChain.id)
+        const {ownerPublicKey, activePublicKey} = await this.retrievePublicKeys(currentChain.id)
 
-        qs.set('owner_key', String(publicKey))
-        qs.set('active_key', String(publicKey))
+        qs.set('owner_key', String(ownerPublicKey))
+        qs.set('active_key', String(activePublicKey))
         const accountCreator = new AccountCreator({
             supportedChains: [String(currentChain.id)],
             fullCreationServiceUrl: `${this.accountCreationServiceUrl}?${qs.toString()}`,
@@ -135,16 +135,25 @@ export class AccountCreationPluginMetamask
         }
     }
 
-    async retrievePublicKey(chainId: Checksum256Type): Promise<PublicKey> {
+    async retrievePublicKeys(
+        chainId: Checksum256Type
+    ): Promise<{ownerPublicKey: PublicKey; activePublicKey: PublicKey}> {
         await this.initialize()
         if (!this.provider) {
             throw new Error('Metamask not found')
         }
-        const result = (await this.invokeSnap({
-            method: 'antelope_getPublicKey',
+        const ownerPublicKeyString = (await this.invokeSnap({
+            method: 'antelope_getOwnerPublicKey',
             params: {chainId: String(chainId)},
         })) as string
-        return PublicKey.from(result)
+        const activePublicKeyString = (await this.invokeSnap({
+            method: 'antelope_getActivePublicKey',
+            params: {chainId: String(chainId)},
+        })) as string
+        return {
+            ownerPublicKey: PublicKey.from(ownerPublicKeyString),
+            activePublicKey: PublicKey.from(activePublicKeyString),
+        }
     }
 
     async request({method, params}) {
