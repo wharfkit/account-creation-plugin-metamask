@@ -78,7 +78,7 @@ export class AccountCreationPluginMetamask
             )
         }
         const qs = new URLSearchParams()
-        qs.set('supported_chains', String(currentChain))
+        qs.set('supported_chains', String(currentChain.id))
         if (context.appName) {
             qs.set('scope', String(context.appName))
         }
