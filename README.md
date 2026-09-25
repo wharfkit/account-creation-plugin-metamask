@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> This package lives in the WharfKit monorepo at [wharfkit/js/packages/account-creation-plugin-metamask](https://github.com/wharfkit/js/tree/dev/packages/account-creation-plugin-metamask), and this repository is archived. Open new issues and pull requests on [wharfkit/js](https://github.com/wharfkit/js).
+
 # WARNING: This is a work in progress and not ready for production use.
 
 # @wharfkit/account-creation-plugin-metamask
